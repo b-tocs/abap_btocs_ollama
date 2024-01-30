@@ -11,7 +11,7 @@ PARAMETERS: p_rfc TYPE rfcdest OBLIGATORY.                " RFC destination to l
 PARAMETERS: p_prf TYPE zbtocs_rws_profile.                " B-Tocs RWS Profile
 PARAMETERS: p_key TYPE zbtocs_api_key LOWER CASE.         " API key, if required
 SELECTION-SCREEN: ULINE.
-PARAMETERS: p_prmt TYPE zbtocs_llm_prompt LOWER CASE OBLIGATORY.                " user input
+PARAMETERS: p_prmt TYPE zbtocs_llm_prompt LOWER CASE. " OBLIGATORY.                " user input
 PARAMETERS: p_clp AS CHECKBOX TYPE zbtocs_flag_clipboard_input  DEFAULT ' '. " get the input from clipboard
 SELECTION-SCREEN: ULINE.
 PARAMETERS: p_modl TYPE zbtocs_llm_model  LOWER CASE DEFAULT 'llama2'.          " model to be used
@@ -44,11 +44,19 @@ START-OF-SELECTION.
   ) EQ abap_true.
 
 * --------- get input
-    DATA(lv_txt) = lo_gui_utils->get_input_with_clipboard(
+    DATA(lv_prmt) = lo_gui_utils->get_input_with_clipboard(
         iv_current   = p_prmt
-        iv_clipboard = abap_true
+        iv_clipboard = p_clp
         iv_longtext  = abap_true
     ).
+
+* -------- check sys prompt from input
+    DATA(lv_sysp) = p_sysp.
+    IF lv_prmt CS '---'.
+      SPLIT lv_prmt AT '---'
+        INTO lv_sysp lv_prmt.
+    ENDIF.
+
 
 * ---------- process options
     DATA lo_response TYPE REF TO zif_btocs_rws_response.
@@ -61,8 +69,8 @@ START-OF-SELECTION.
         is_params = VALUE zbtocs_ollama_s_generate_par(
           model       = p_modl
           role        = p_role
-          prompt      = p_prmt
-          sys_prompt  = p_sysp
+          prompt      = lv_prmt
+          sys_prompt  = lv_sysp
           template    = p_temp
           context     = p_cntx
         )
