@@ -48,6 +48,12 @@ CLASS ZCL_BTOCS_OLLAMA_CONNECTOR IMPLEMENTATION.
       RETURN.
     ENDIF.
 
+* ----------- transformation line breaks
+    zcl_btocs_factory=>create_text_util( )->replace_eol_with_esc_n( CHANGING cv_text = ls_params-prompt ).
+    zcl_btocs_factory=>create_text_util( )->replace_tab_with_esc_t( CHANGING cv_text = ls_params-prompt ).
+
+    zcl_btocs_factory=>create_text_util( )->replace_eol_with_esc_n( CHANGING cv_text = ls_params-sys_prompt ).
+    zcl_btocs_factory=>create_text_util( )->replace_tab_with_esc_t( CHANGING cv_text = ls_params-sys_prompt ).
 
 
 * =========== fill form based params
