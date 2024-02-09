@@ -1,4 +1,4 @@
-# B-Tocs ABAP Addon - OLLAMA Connector
+# B-Tocs ABAP Plugin - OLLAMA Connector
 
 ![Bride To Other Cool Stuff](res/btocs_logo.gif)
 
