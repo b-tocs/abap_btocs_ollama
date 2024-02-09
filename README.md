@@ -90,7 +90,7 @@ flowchart LR
 
 ### 2. Prepare your SAP ABAP Backend
 
-1. An installed [B-Tocs ABAP SDK](https://github.com/b-tocs/abap_btocs_core) is required. 
+1. An installed [B-Tocs ABAP SDK](https://github.com/b-tocs/abap_btocs_core) is required. Check for Updates.
 2. Install this plugin with [abapGit](https://abapgit.org).
 3. Use Package ZBTOCS_OLLAMA or $BTOCS_OLLAMA (local only)
 4. Configure SM59 RFC Destination to your service
@@ -148,6 +148,7 @@ Check report ZBTOCS_OLLAMA_GUI_RWS_DEMO for more.
 1. Some Ollama API features are not implemented yet
 2. The performance of the webservice depends on your AI backend. In local environment the performance is bad...
 3. There is currently no data center experience for optimal conditions for the container and parallel requests
+4. Known issues with backward compatibility. Will be fixed soon...
 
 ## FAQ
 
