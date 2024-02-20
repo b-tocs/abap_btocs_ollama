@@ -1,25 +1,17 @@
 *&---------------------------------------------------------------------*
-*& Report ZBTOCS_OLLAMA_GUI_RWS_DEMO
+*& Report ZBTOCS_OLLAMA_GUI_API_TAGS
 *&---------------------------------------------------------------------*
-*& demo how to use the OLLAMA Connector
+*& create embedding for prompt
 *& Repository & Docs: https://github.com/b-tocs/abap_btocs_ollama
 *&---------------------------------------------------------------------*
-REPORT zbtocs_ollama_gui_rws_demo.
+REPORT zbtocs_ollama_gui_api_embed.
 
 * ------- interface
 PARAMETERS: p_rfc TYPE rfcdest OBLIGATORY.                " RFC destination to libretrans API (e.g. https://libretranslate.com/)
 PARAMETERS: p_prf TYPE zbtocs_rws_profile.                " B-Tocs RWS Profile
-PARAMETERS: p_key TYPE zbtocs_api_key LOWER CASE.         " API key, if required
 SELECTION-SCREEN: ULINE.
 PARAMETERS: p_prmt TYPE zbtocs_llm_prompt LOWER CASE. " OBLIGATORY.                " user input
-PARAMETERS: p_clp AS CHECKBOX TYPE zbtocs_flag_clipboard_input  DEFAULT ' '. " get the input from clipboard
-SELECTION-SCREEN: ULINE.
-PARAMETERS: p_file TYPE zbtocs_filename        LOWER CASE.                       " input from file content
-PARAMETERS: p_modl TYPE zbtocs_llm_model      LOWER CASE DEFAULT 'llama2'.      " model to be used
-PARAMETERS: p_role TYPE zbtocs_llm_role       LOWER CASE DEFAULT 'user'.        " input standard text
-PARAMETERS: p_sysp TYPE zbtocs_llm_sys_prompt LOWER CASE.                       " system prompt
-PARAMETERS: p_temp TYPE zbtocs_llm_template   LOWER CASE.                       " system template
-PARAMETERS: p_cntx TYPE zbtocs_llm_context    LOWER CASE.                       " context
+PARAMETERS: p_modl TYPE zbtocs_llm_model  LOWER CASE DEFAULT 'llama2'.          " model to be used
 SELECTION-SCREEN: ULINE.
 PARAMETERS: p_proto AS CHECKBOX TYPE zbtocs_flag_protocol         DEFAULT 'X'. " show protocol
 PARAMETERS: p_trace AS CHECKBOX TYPE zbtocs_flag_display_trace    DEFAULT ' '. " show protocol with trace
@@ -33,10 +25,6 @@ INITIALIZATION.
   DATA(lo_connector) = zcl_btocs_ollama_connector=>create( ).
   lo_connector->set_logger( lo_logger ).
 
-* --------------------- F4 Help
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-  lo_gui_utils->f4_get_filename_open( CHANGING cv_filename = p_file ).
-
 
 START-OF-SELECTION.
 
@@ -48,80 +36,39 @@ START-OF-SELECTION.
     iv_profile = p_prf
   ) EQ abap_true.
 
-* --------- get input
-    DATA(lv_prmt) = lo_gui_utils->get_input_with_clipboard(
-        iv_current   = p_prmt
-        iv_clipboard = p_clp
-        iv_longtext  = abap_true
-    ).
-
-* -------- check sys prompt from input
-    DATA(lv_sysp) = p_sysp.
-    IF lv_prmt CS '---'.
-      SPLIT lv_prmt AT '---'
-        INTO lv_sysp lv_prmt.
-    ENDIF.
-
-* ---------- Output current params
-    cl_demo_output=>begin_section( title = |Parameters| ).
-    cl_demo_output=>write_text( text = |Model: { p_modl }| ).
-    cl_demo_output=>write_text( text = |Role: { p_role }| ).
-
-    cl_demo_output=>write_text( text = |Prompt: { p_prmt }| ).
-    cl_demo_output=>write_text( text = |System Prompt { p_sysp }| ).
-
-    IF p_temp IS NOT INITIAL.
-      cl_demo_output=>write_text( text = |Template: { p_temp }| ).
-    ENDIF.
-
-    IF p_cntx IS NOT INITIAL.
-      cl_demo_output=>write_text( text = |Context: { p_cntx }| ).
-    ENDIF.
-
-    cl_demo_output=>end_section( ).
-
-* ---------- File Upload?
-    DATA lv_image TYPE xstring.
-    IF p_file IS NOT INITIAL.
-      IF lo_gui_utils->get_upload(
-      EXPORTING
-        iv_filename     = p_file
-      IMPORTING
-        ev_binary       = lv_image
-    ) EQ abap_false.
-        lo_logger->error( |file upload failed| ).
-      ENDIF.
-    ENDIF.
 
 * ---------- API TRANSLATE
-    DATA(ls_result) = VALUE zbtocs_ollama_s_generate_res( ).
+    DATA lt_result TYPE string_table.
+    DATA lv_array  TYPE string.
 
-    DATA(lo_response) = lo_connector->api_generate(
+    DATA(lo_response) = lo_connector->api_embeddings(
       EXPORTING
-        is_params = VALUE zbtocs_ollama_s_generate_par(
-          model       = p_modl
-          role        = p_role
-          prompt      = lv_prmt
-          sys_prompt  = lv_sysp
-          template    = p_temp
-          context     = p_cntx
-          image       = lv_image
+        is_params = VALUE zbtocs_ollama_s_embeddings_par(
+          model = p_modl
+          prompt = p_prmt
         )
         iv_parse = abap_true
       IMPORTING
-        es_result = ls_result
-    ).
-
-    IF ls_result IS NOT INITIAL.
-      cl_demo_output=>begin_section( title = |Result| ).
-      cl_demo_output=>write_text( text = |Response: { ls_result-response }| ).
-      cl_demo_output=>end_section( ).
-    ENDIF.
+        et_embedding = lt_result
+        ev_embedding = lv_array
+     ).
 
 * ------------ check response
     IF lo_response IS INITIAL.
       lo_logger->error( |invalid response detected| ).
     ELSE.
+* ------------ show result
+      IF lv_array IS NOT INITIAL.
+        cl_demo_output=>begin_section( title = |Embedding Array| ).
+        cl_demo_output=>write_data( lv_array ).
+        cl_demo_output=>end_section( ).
+      ENDIF.
+
+      IF lt_result IS NOT INITIAL.
+        cl_demo_output=>begin_section( title = |Embeddings| ).
+        cl_demo_output=>write_data( lt_result ).
+        cl_demo_output=>end_section( ).
+      ENDIF.
 * ------------ create status results
       DATA(lv_status) = lo_response->get_status_code( ).
       DATA(lv_reason) = lo_response->get_reason( ).
