@@ -53,6 +53,13 @@ INTERFACE zif_btocs_ollama_connector
     RETURNING
       VALUE(ro_response) TYPE REF TO zif_btocs_rws_response .
 
+  METHODS api_show
+    IMPORTING
+      !iv_model          TYPE data
+    RETURNING
+      VALUE(ro_response) TYPE REF TO zif_btocs_rws_response .
+
+
   METHODS parse_response_generate
     IMPORTING
       !io_response     TYPE REF TO zif_btocs_rws_response

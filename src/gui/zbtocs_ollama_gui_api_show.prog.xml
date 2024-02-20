@@ -3,7 +3,7 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <PROGDIR>
-    <NAME>ZBTOCS_OLLAMA_GUI_API_TAGS</NAME>
+    <NAME>ZBTOCS_OLLAMA_GUI_API_SHOW</NAME>
     <SUBC>1</SUBC>
     <RSTAT>T</RSTAT>
     <RLOAD>E</RLOAD>

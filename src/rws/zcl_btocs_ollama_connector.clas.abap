@@ -171,4 +171,49 @@ CLASS ZCL_BTOCS_OLLAMA_CONNECTOR IMPLEMENTATION.
      iv_method   = 'GET'
     ).
   ENDMETHOD.
+
+
+  METHOD zif_btocs_ollama_connector~api_show.
+
+* ========== init
+    ro_response     = zcl_btocs_factory=>create_web_service_response( ).
+    ro_response->set_logger( get_logger( ) ).
+
+
+* =========== checks and preparations
+    IF zif_btocs_ollama_connector~is_initialized( ) EQ abap_false.
+      ro_response->set_reason( |connector is not initialized| ).
+      RETURN.
+    ENDIF.
+
+    IF iv_model IS INITIAL.
+      ro_response->set_reason( |model is missing| ).
+      RETURN.
+    ENDIF.
+
+
+* =========== fill form based params
+    DATA(lo_request) = zif_btocs_ollama_connector~new_request( ). " from current client
+
+    DATA(lo_json) = lo_request->new_json_object( ).
+    DATA(lo_mgr)  = lo_json->get_manager( ).
+
+    lo_json->set(
+        iv_name      = zif_btocs_ollama_connector=>c_json_key-model
+        io_value     = lo_mgr->new_string( iv_model )
+    ).
+
+* ============ execute via api path
+    DATA(lo_response) = zif_btocs_ollama_connector~new_response( ).
+    ro_response ?= zif_btocs_ollama_connector~execute(
+     iv_api_path = zif_btocs_ollama_c=>api_path-show
+     io_response = lo_response
+    ).
+
+* ----- parse?
+*    IF iv_parse EQ abap_true.
+*      es_result = zif_btocs_ollama_connector~parse_response_generate( ro_response ).
+*    ENDIF.
+
+  ENDMETHOD.
 ENDCLASS.
