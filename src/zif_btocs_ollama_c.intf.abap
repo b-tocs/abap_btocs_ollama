@@ -1,15 +1,20 @@
-interface ZIF_BTOCS_OLLAMA_C
-  public .
+INTERFACE zif_btocs_ollama_c
+  PUBLIC .
 
 
-  constants VERSION type STRING value 'V20240122' ##NO_TEXT.
-  constants RELEASE type STRING value '0.1.0' ##NO_TEXT.
-  constants HOMEPAGE type STRING value 'https://b-tocs.org' ##NO_TEXT.
-  constants REPOSITORY type STRING value 'https://github.com/b-tocs/abap_btocs_ollamal' ##NO_TEXT.
-  constants AUTHOR type STRING value 'mdjoerg@b-tocs.org' ##NO_TEXT.
-  constants DEPENDING type STRING value 'https://github.com/b-tocs/abap_btocs_core:0.3.1' ##NO_TEXT.
-  constants:
+  CONSTANTS version TYPE string VALUE 'V20240220' ##NO_TEXT.
+  CONSTANTS release TYPE string VALUE '0.1.1' ##NO_TEXT.
+  CONSTANTS homepage TYPE string VALUE 'https://b-tocs.org' ##NO_TEXT.
+  CONSTANTS repository TYPE string VALUE 'https://github.com/b-tocs/abap_btocs_ollamal' ##NO_TEXT.
+  CONSTANTS author TYPE string VALUE 'mdjoerg@b-tocs.org' ##NO_TEXT.
+  CONSTANTS depending TYPE string VALUE 'https://github.com/b-tocs/abap_btocs_core:0.3.1' ##NO_TEXT.
+
+  " reference https://github.com/ollama/ollama/blob/main/docs/api.md
+  CONSTANTS:
     BEGIN OF api_path,
-      generate TYPE string VALUE '/api/generate',
+      generate   TYPE string VALUE '/api/generate',
+      embeddings TYPE string VALUE '/api/embeddings',
+      tags       TYPE string VALUE '/api/tags',
+      show       TYPE string VALUE '/api/show',
     END OF api_path .
-endinterface.
+ENDINTERFACE.

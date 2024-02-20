@@ -1,24 +1,14 @@
 *&---------------------------------------------------------------------*
-*& Report ZBTOCS_OLLAMA_GUI_RWS_DEMO
+*& Report ZBTOCS_OLLAMA_GUI_API_TAGS
 *&---------------------------------------------------------------------*
-*& demo how to use the OLLAMA Connector
+*& list of all local models of ollama service
 *& Repository & Docs: https://github.com/b-tocs/abap_btocs_ollama
 *&---------------------------------------------------------------------*
-REPORT zbtocs_ollama_gui_rws_demo.
+REPORT zbtocs_ollama_gui_api_tags.
 
 * ------- interface
 PARAMETERS: p_rfc TYPE rfcdest OBLIGATORY.                " RFC destination to libretrans API (e.g. https://libretranslate.com/)
 PARAMETERS: p_prf TYPE zbtocs_rws_profile.                " B-Tocs RWS Profile
-PARAMETERS: p_key TYPE zbtocs_api_key LOWER CASE.         " API key, if required
-SELECTION-SCREEN: ULINE.
-PARAMETERS: p_prmt TYPE zbtocs_llm_prompt LOWER CASE. " OBLIGATORY.                " user input
-PARAMETERS: p_clp AS CHECKBOX TYPE zbtocs_flag_clipboard_input  DEFAULT ' '. " get the input from clipboard
-SELECTION-SCREEN: ULINE.
-PARAMETERS: p_modl TYPE zbtocs_llm_model  LOWER CASE DEFAULT 'llama2'.          " model to be used
-PARAMETERS: p_role TYPE zbtocs_llm_role   LOWER CASE DEFAULT 'user'.            " input standard text
-PARAMETERS: p_sysp TYPE zbtocs_llm_sys_prompt LOWER CASE.                       " system prompt
-PARAMETERS: p_temp TYPE zbtocs_llm_template   LOWER CASE.                       " system template
-PARAMETERS: p_cntx TYPE zbtocs_llm_context    LOWER CASE.                       " context
 SELECTION-SCREEN: ULINE.
 PARAMETERS: p_proto AS CHECKBOX TYPE zbtocs_flag_protocol         DEFAULT 'X'. " show protocol
 PARAMETERS: p_trace AS CHECKBOX TYPE zbtocs_flag_display_trace    DEFAULT ' '. " show protocol with trace
@@ -43,62 +33,9 @@ START-OF-SELECTION.
     iv_profile = p_prf
   ) EQ abap_true.
 
-* --------- get input
-    DATA(lv_prmt) = lo_gui_utils->get_input_with_clipboard(
-        iv_current   = p_prmt
-        iv_clipboard = p_clp
-        iv_longtext  = abap_true
-    ).
-
-* -------- check sys prompt from input
-    DATA(lv_sysp) = p_sysp.
-    IF lv_prmt CS '---'.
-      SPLIT lv_prmt AT '---'
-        INTO lv_sysp lv_prmt.
-    ENDIF.
-
-* ---------- Output current params
-    cl_demo_output=>begin_section( title = |Parameters| ).
-    cl_demo_output=>write_text( text = |Model: { p_modl }| ).
-    cl_demo_output=>write_text( text = |Role: { p_role }| ).
-
-    cl_demo_output=>write_text( text = |Prompt: { p_prmt }| ).
-    cl_demo_output=>write_text( text = |System Prompt { p_sysp }| ).
-
-    IF p_temp IS NOT INITIAL.
-      cl_demo_output=>write_text( text = |Template: { p_temp }| ).
-    ENDIF.
-
-    IF p_cntx IS NOT INITIAL.
-      cl_demo_output=>write_text( text = |Context: { p_cntx }| ).
-    ENDIF.
-
-    cl_demo_output=>end_section( ).
-
 
 * ---------- API TRANSLATE
-    DATA(ls_result) = VALUE zbtocs_ollama_s_generate_res( ).
-
-    DATA(lo_response) = lo_connector->api_generate(
-      EXPORTING
-        is_params = VALUE zbtocs_ollama_s_generate_par(
-          model       = p_modl
-          role        = p_role
-          prompt      = lv_prmt
-          sys_prompt  = lv_sysp
-          template    = p_temp
-          context     = p_cntx
-        )
-        iv_parse = abap_true
-      IMPORTING
-        es_result = ls_result
-    ).
-
-    IF ls_result IS NOT INITIAL.
-      cl_demo_output=>begin_section( title = |Result| ).
-      cl_demo_output=>write_text( text = |Response: { ls_result-response }| ).
-      cl_demo_output=>end_section( ).
-    ENDIF.
+    DATA(lo_response) = lo_connector->api_tags( ).
 
 * ------------ check response
     IF lo_response IS INITIAL.

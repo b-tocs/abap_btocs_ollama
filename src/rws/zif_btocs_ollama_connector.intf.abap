@@ -26,8 +26,8 @@ INTERFACE zif_btocs_ollama_connector
   ALIASES set_logger
     FOR zif_btocs_rws_connector~set_logger .
 
-  " see https://github.com/jmorganca/ollama/blob/main/docs/api.md
   CONSTANTS:
+    " see https://github.com/jmorganca/ollama/blob/main/docs/api.md
     BEGIN OF c_json_key,
       role       TYPE string VALUE 'role',
       model      TYPE string VALUE 'model',
@@ -48,4 +48,14 @@ INTERFACE zif_btocs_ollama_connector
       !es_result         TYPE zbtocs_ollama_s_generate_res
     RETURNING
       VALUE(ro_response) TYPE REF TO zif_btocs_rws_response .
+
+  METHODS api_tags
+    RETURNING
+      VALUE(ro_response) TYPE REF TO zif_btocs_rws_response .
+
+  METHODS parse_response_generate
+    IMPORTING
+      !io_response     TYPE REF TO zif_btocs_rws_response
+    RETURNING
+      VALUE(rs_result) TYPE zbtocs_ollama_s_generate_res .
 ENDINTERFACE.

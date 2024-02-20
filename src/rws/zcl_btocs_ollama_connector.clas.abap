@@ -115,21 +115,60 @@ CLASS ZCL_BTOCS_OLLAMA_CONNECTOR IMPLEMENTATION.
     ).
 
 * ----- parse?
-    IF ro_response IS NOT INITIAL
-      AND ro_response->is_json_object( ) EQ abap_true
-      AND iv_parse EQ abap_true.
-
-      get_logger( )->debug( |Parsing mode activated. Get results| ).
-      DATA(lo_parsed) = ro_response->get_values_from_parsed_json( ).
-      DATA(lo_answer)   = lo_parsed->get_structure_value( ).
-
-      IF lo_answer IS NOT INITIAL.
-        es_result-response = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-response ).
-        es_result-model    = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-model ).
-        es_result-context  = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-context ).
-
-
-      ENDIF.
+    IF iv_parse EQ abap_true.
+      es_result = zif_btocs_ollama_connector~parse_response_generate( ro_response ).
     ENDIF.
+  ENDMETHOD.
+
+
+  METHOD zif_btocs_ollama_connector~parse_response_generate.
+
+* ------ check
+    IF io_response IS INITIAL
+      OR io_response->is_json_object( ) EQ abap_false.
+      get_logger( )->error( |invalid generate response| ).
+      RETURN.
+    ENDIF.
+
+* ------- transform
+    TRY.
+        DATA(lo_parsed) = io_response->get_values_from_parsed_json( ).
+        DATA(lo_answer)   = lo_parsed->get_structure_value( ).
+
+        IF lo_answer IS INITIAL.
+          get_logger( )->error( |no generate answer structure found| ).
+        ELSE.
+          rs_result-response = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-response ).
+          rs_result-model    = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-model ).
+          rs_result-context  = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-context ).
+        ENDIF.
+      CATCH cx_root INTO DATA(lx_exc).
+        DATA(lv_error) = lx_exc->get_text( ).
+        get_logger( )->error( lv_error ).
+    ENDTRY.
+  ENDMETHOD.
+
+
+  METHOD zif_btocs_ollama_connector~api_tags.
+* ========== init
+    ro_response     = zcl_btocs_factory=>create_web_service_response( ).
+    ro_response->set_logger( get_logger( ) ).
+
+
+* =========== checks and preparations
+    IF zif_btocs_ollama_connector~is_initialized( ) EQ abap_false.
+      ro_response->set_reason( |connector is not initialized| ).
+      RETURN.
+    ENDIF.
+
+
+
+* ============ execute via api path
+    DATA(lo_response) = zif_btocs_ollama_connector~new_response( ).
+    ro_response ?= zif_btocs_ollama_connector~execute(
+     iv_api_path = zif_btocs_ollama_c=>api_path-tags
+     io_response = lo_response
+     iv_method   = 'GET'
+    ).
   ENDMETHOD.
 ENDCLASS.

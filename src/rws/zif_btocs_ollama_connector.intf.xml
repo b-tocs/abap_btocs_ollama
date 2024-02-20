@@ -17,6 +17,18 @@
      <LANGU>E</LANGU>
      <DESCRIPT>ollama api generate - result</DESCRIPT>
     </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>PARSE_RESPONSE_GENERATE</CMPNAME>
+     <SCONAME>IO_RESPONSE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>B-Tocs Response Interface</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>PARSE_RESPONSE_GENERATE</CMPNAME>
+     <SCONAME>RS_RESULT</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>ollama api generate - result</DESCRIPT>
+    </SEOSUBCOTX>
    </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
