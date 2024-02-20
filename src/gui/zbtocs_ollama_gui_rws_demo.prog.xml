@@ -13,8 +13,8 @@
    <TPOOL>
     <item>
      <ID>R</ID>
-     <ENTRY>B-Tocs Plugin OLLAMA - Demo</ENTRY>
-     <LENGTH>27</LENGTH>
+     <ENTRY>B-Tocs Plugin OLLAMA - Demo (API generate)</ENTRY>
+     <LENGTH>42</LENGTH>
     </item>
     <item>
      <ID>S</ID>
@@ -26,6 +26,13 @@
     <item>
      <ID>S</ID>
      <KEY>P_CNTX</KEY>
+     <ENTRY>.</ENTRY>
+     <LENGTH>9</LENGTH>
+     <SPLIT>D</SPLIT>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_FILE</KEY>
      <ENTRY>.</ENTRY>
      <LENGTH>9</LENGTH>
      <SPLIT>D</SPLIT>

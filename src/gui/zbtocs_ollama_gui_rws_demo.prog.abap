@@ -14,8 +14,9 @@ SELECTION-SCREEN: ULINE.
 PARAMETERS: p_prmt TYPE zbtocs_llm_prompt LOWER CASE. " OBLIGATORY.                " user input
 PARAMETERS: p_clp AS CHECKBOX TYPE zbtocs_flag_clipboard_input  DEFAULT ' '. " get the input from clipboard
 SELECTION-SCREEN: ULINE.
-PARAMETERS: p_modl TYPE zbtocs_llm_model  LOWER CASE DEFAULT 'llama2'.          " model to be used
-PARAMETERS: p_role TYPE zbtocs_llm_role   LOWER CASE DEFAULT 'user'.            " input standard text
+PARAMETERS: p_file TYPE zbtocs_filename        LOWER CASE.                       " input from file content
+PARAMETERS: p_modl TYPE zbtocs_llm_model      LOWER CASE DEFAULT 'llama2'.      " model to be used
+PARAMETERS: p_role TYPE zbtocs_llm_role       LOWER CASE DEFAULT 'user'.        " input standard text
 PARAMETERS: p_sysp TYPE zbtocs_llm_sys_prompt LOWER CASE.                       " system prompt
 PARAMETERS: p_temp TYPE zbtocs_llm_template   LOWER CASE.                       " system template
 PARAMETERS: p_cntx TYPE zbtocs_llm_context    LOWER CASE.                       " context
@@ -31,6 +32,10 @@ INITIALIZATION.
 
   DATA(lo_connector) = zcl_btocs_ollama_connector=>create( ).
   lo_connector->set_logger( lo_logger ).
+
+* --------------------- F4 Help
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+  lo_gui_utils->f4_get_filename_open( CHANGING cv_filename = p_file ).
 
 
 START-OF-SELECTION.
@@ -75,6 +80,18 @@ START-OF-SELECTION.
 
     cl_demo_output=>end_section( ).
 
+* ---------- File Upload?
+    DATA lv_image TYPE xstring.
+    IF p_file IS NOT INITIAL.
+      IF lo_gui_utils->get_upload(
+      EXPORTING
+        iv_filename     = p_file
+      IMPORTING
+        ev_binary       = lv_image
+    ) EQ abap_false.
+        lo_logger->error( |file upload failed| ).
+      ENDIF.
+    ENDIF.
 
 * ---------- API TRANSLATE
     DATA(ls_result) = VALUE zbtocs_ollama_s_generate_res( ).
@@ -88,6 +105,7 @@ START-OF-SELECTION.
           sys_prompt  = lv_sysp
           template    = p_temp
           context     = p_cntx
+          image       = lv_image
         )
         iv_parse = abap_true
       IMPORTING

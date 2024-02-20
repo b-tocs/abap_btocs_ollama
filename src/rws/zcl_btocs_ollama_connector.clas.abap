@@ -106,6 +106,23 @@ CLASS ZCL_BTOCS_OLLAMA_CONNECTOR IMPLEMENTATION.
       ).
     ENDIF.
 
+* image
+    IF ls_params-image IS NOT INITIAL.
+      DATA(lo_convert) = zcl_btocs_factory=>create_convert_util( ).
+      DATA(lv_base64) = lo_convert->encode_xstring_to_base64( ls_params-image ).
+      IF lv_base64 IS INITIAL.
+        get_logger( )->error( |convert image data to base64 failed| ).
+      ELSE.
+        DATA(lo_array) = lo_mgr->new_json_array( ).
+        lo_array->add( lo_mgr->new_string( lv_base64 ) ).
+        lo_json->set(
+            iv_name      = zif_btocs_ollama_connector=>c_json_key-images
+            io_value     = lo_array
+        ).
+      ENDIF.
+    ENDIF.
+
+
 
 * ============ execute via api path
     DATA(lo_response) = zif_btocs_ollama_connector~new_response( ).
