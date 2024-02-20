@@ -1,15 +1,16 @@
 *&---------------------------------------------------------------------*
 *& Report ZBTOCS_OLLAMA_GUI_API_TAGS
 *&---------------------------------------------------------------------*
-*& show detail info for local model of ollama service
+*& create embedding for prompt
 *& Repository & Docs: https://github.com/b-tocs/abap_btocs_ollama
 *&---------------------------------------------------------------------*
-REPORT zbtocs_ollama_gui_api_show.
+REPORT zbtocs_ollama_gui_api_embed.
 
 * ------- interface
 PARAMETERS: p_rfc TYPE rfcdest OBLIGATORY.                " RFC destination to libretrans API (e.g. https://libretranslate.com/)
 PARAMETERS: p_prf TYPE zbtocs_rws_profile.                " B-Tocs RWS Profile
 SELECTION-SCREEN: ULINE.
+PARAMETERS: p_prmt TYPE zbtocs_llm_prompt LOWER CASE. " OBLIGATORY.                " user input
 PARAMETERS: p_modl TYPE zbtocs_llm_model  LOWER CASE DEFAULT 'llama2'.          " model to be used
 SELECTION-SCREEN: ULINE.
 PARAMETERS: p_proto AS CHECKBOX TYPE zbtocs_flag_protocol         DEFAULT 'X'. " show protocol
@@ -37,14 +38,19 @@ START-OF-SELECTION.
 
 
 * ---------- API TRANSLATE
-    DATA ls_result TYPE zbtocs_ollama_s_show_res.
+    DATA lt_result TYPE string_table.
+    DATA lv_array  TYPE string.
 
-    DATA(lo_response) = lo_connector->api_show(
+    DATA(lo_response) = lo_connector->api_embeddings(
       EXPORTING
-        iv_model = p_modl
+        is_params = VALUE zbtocs_ollama_s_embeddings_par(
+          model = p_modl
+          prompt = p_prmt
+        )
         iv_parse = abap_true
       IMPORTING
-        es_result = ls_result
+        et_embedding = lt_result
+        ev_embedding = lv_array
      ).
 
 * ------------ check response
@@ -52,24 +58,15 @@ START-OF-SELECTION.
       lo_logger->error( |invalid response detected| ).
     ELSE.
 * ------------ show result
-      IF ls_result IS NOT INITIAL.
-        cl_demo_output=>begin_section( title = |Response| ).
-        cl_demo_output=>write_data( ls_result ).
+      IF lv_array IS NOT INITIAL.
+        cl_demo_output=>begin_section( title = |Embedding Array| ).
+        cl_demo_output=>write_data( lv_array ).
         cl_demo_output=>end_section( ).
+      ENDIF.
 
-        cl_demo_output=>begin_section( title = |License| ).
-        REPLACE ALL OCCURRENCES OF '\n' IN ls_result-license WITH cl_abap_char_utilities=>newline.
-        cl_demo_output=>write_text( text = ls_result-license ).
-        cl_demo_output=>end_section( ).
-
-        cl_demo_output=>begin_section( title = |License| ).
-        REPLACE ALL OCCURRENCES OF '\n' IN ls_result-modelfile WITH cl_abap_char_utilities=>newline.
-        cl_demo_output=>write_text( text = ls_result-modelfile ).
-        cl_demo_output=>end_section( ).
-
-        cl_demo_output=>begin_section( title = |Template| ).
-        REPLACE ALL OCCURRENCES OF '\n' IN ls_result-template WITH cl_abap_char_utilities=>newline.
-        cl_demo_output=>write_text( text = ls_result-template ).
+      IF lt_result IS NOT INITIAL.
+        cl_demo_output=>begin_section( title = |Embeddings| ).
+        cl_demo_output=>write_data( lt_result ).
         cl_demo_output=>end_section( ).
       ENDIF.
 * ------------ create status results

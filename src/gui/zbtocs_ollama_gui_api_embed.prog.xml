@@ -3,7 +3,7 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <PROGDIR>
-    <NAME>ZBTOCS_OLLAMA_GUI_API_SHOW</NAME>
+    <NAME>ZBTOCS_OLLAMA_GUI_API_EMBED</NAME>
     <SUBC>1</SUBC>
     <RSTAT>T</RSTAT>
     <RLOAD>E</RLOAD>
@@ -13,8 +13,8 @@
    <TPOOL>
     <item>
      <ID>R</ID>
-     <ENTRY>B-Tocs Plugin OLLAMA - Model Info (API show)</ENTRY>
-     <LENGTH>44</LENGTH>
+     <ENTRY>B-Tocs Plugin OLLAMA - Create Embedding (API embeddings)</ENTRY>
+     <LENGTH>56</LENGTH>
     </item>
     <item>
      <ID>S</ID>

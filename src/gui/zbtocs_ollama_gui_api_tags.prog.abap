@@ -35,12 +35,25 @@ START-OF-SELECTION.
 
 
 * ---------- API TRANSLATE
-    DATA(lo_response) = lo_connector->api_tags( ).
+    DATA lt_result TYPE zbtocs_ollama_t_tags_res.
+    DATA(lo_response) = lo_connector->api_tags(
+    EXPORTING
+      iv_parse = abap_true
+     IMPORTING
+       et_result = lt_result
+     ).
 
 * ------------ check response
     IF lo_response IS INITIAL.
       lo_logger->error( |invalid response detected| ).
     ELSE.
+* ------------ result
+      IF lt_result[] IS NOT INITIAL.
+        cl_demo_output=>begin_section( title = |Model List| ).
+        cl_demo_output=>write_data( lt_result )..
+        cl_demo_output=>end_section( ).
+      ENDIF.
+
 * ------------ create status results
       DATA(lv_status) = lo_response->get_status_code( ).
       DATA(lv_reason) = lo_response->get_reason( ).
