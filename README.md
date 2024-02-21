@@ -142,7 +142,31 @@ lo_connector->destroy( ).
 ```
 Check report ZBTOCS_OLLAMA_GUI_RWS_DEMO for more.
 
+## API implementation
 
+The Ollama API is documented [here](https://github.com/ollama/ollama/blob/main/docs/api.md). Not all these API endpoints are implemented in ABAP.
+
+| Program                       | Description                | API endpoint          |
+| ---                           | ---                        | ---                   |
+| ZBTOCS_OLLAMA_GUI_RWS_DEMO    | Default usage generation   | /api/generate         |
+| ZBTOCS_OLLAMA_GUI_API_TAGS    | List of installed models   | /api/tags             | 
+| ZBTOCS_OLLAMA_GUI_API_SHOW    | Model info                 | /api/show             |
+| ZBTOCS_OLLAMA_GUI_API_EMBED   | Generate embedding         | /api/embeddings       |
+
+
+## History
+
+- 0.2.0 2024/02/20
+    - api endpoint /api/tags
+    - api endpoint /api/show
+    - api endpoint /api/embeddings
+    - added support for images in /api/generate
+    - additional information in result popup for /api/generate
+    - connector refactoring: parse* methods
+- 0.1.0  2024/01/22
+    - initial release
+    - connector 
+    - api endpoint /api/generate
 
 ## Known Issues
 1. Some Ollama API features are not implemented yet
