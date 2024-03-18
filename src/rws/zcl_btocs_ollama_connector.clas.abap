@@ -102,7 +102,7 @@ CLASS ZCL_BTOCS_OLLAMA_CONNECTOR IMPLEMENTATION.
     IF ls_params-context IS NOT INITIAL.
       lo_json->set(
           iv_name      = zif_btocs_ollama_connector=>c_json_key-context
-          io_value     = lo_mgr->new_string( ls_params-context )
+          io_value     = lo_mgr->new_json_array( iv_raw_value = ls_params-context )
       ).
     ENDIF.
 
@@ -157,10 +157,23 @@ CLASS ZCL_BTOCS_OLLAMA_CONNECTOR IMPLEMENTATION.
         ELSE.
           rs_result-response = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-response ).
           rs_result-model    = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-model ).
-          rs_result-context  = lo_answer->get_string( zif_btocs_ollama_connector~c_json_key-context ).
+
+*         get context
+          DATA(lo_context) = lo_answer->get( zif_btocs_ollama_connector~c_json_key-context ).
+          DATA lo_arr_ctx TYPE REF TO zif_btocs_value_array.
+
+          TRY.
+              lo_arr_ctx ?= lo_context.
+              rs_result-context = lo_arr_ctx->render( ).
+
+            CATCH cx_root INTO DATA(lx_exc_arr).
+              DATA(lv_error) = lx_exc_arr->get_text( ).
+
+          ENDTRY.
+
         ENDIF.
       CATCH cx_root INTO DATA(lx_exc).
-        DATA(lv_error) = lx_exc->get_text( ).
+        lv_error = lx_exc->get_text( ).
         get_logger( )->error( lv_error ).
     ENDTRY.
   ENDMETHOD.
